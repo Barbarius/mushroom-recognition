@@ -2,6 +2,15 @@ from keras.applications.resnet50 import ResNet50
 from keras.preprocessing import image
 from keras.applications.resnet50 import preprocess_input, decode_predictions
 import numpy as np
+import sys
+
+if len(sys.argv) < 3:
+    print("You should specify directory to train on as first argument and "
+        "directory to validate on as second one")
+    exit()
+
+train_dir = sys.argv[1]
+validate_dir = sys.argv[2]
 
 # ResNet model for classifications mushrooms into 3 categories:
 # Edible, non-edible, not-a-mushroom
@@ -19,13 +28,13 @@ train_datagen = image.ImageDataGenerator(
 test_datagen = image.ImageDataGenerator(rescale=1./255)
 
 train_generator = train_datagen.flow_from_directory(
-        '../Mushrooms',
+        train_dir,
         target_size=(224, 224),
         batch_size=32,
         class_mode='binary')
 
 validation_generator = test_datagen.flow_from_directory(
-        '../Mushrooms',
+        validate_dir,
         target_size=(224, 224),
         batch_size=32,
         class_mode='binary')
