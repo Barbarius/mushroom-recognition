@@ -49,5 +49,6 @@ model.fit_generator(
         validation_data=validation_generator,
         validation_steps=800,
         verbose=2)
-                
-model.save_weights('first_model.h5') 
+
+export_dir = 'export/'
+model.save_weights(export_dir + 'first_model.h5') 
