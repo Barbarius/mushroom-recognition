@@ -51,4 +51,5 @@ model.fit_generator(
         verbose=2)
 
 export_dir = 'export/'
-model.save_weights(export_dir + 'first_model.h5') 
+model.save_weights(export_dir + 'weights.h5')
+np.savetxt(export_dir + 'model.json', [model.to_json()], fmt='%s')
