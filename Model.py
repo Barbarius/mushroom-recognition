@@ -5,7 +5,7 @@ import tensorflow as tf
 import numpy as np
 import sys
 import os
-"""
+
 if len(sys.argv) < 3:
     print("You should specify directory to train on as first argument and "
         "directory to validate on as second one")
@@ -13,11 +13,11 @@ if len(sys.argv) < 3:
 
 train_dir = sys.argv[1]
 validate_dir = sys.argv[2]
-"""
+
 # ResNet model for classifications mushrooms into 3 categories:
 # Edible, non-edible, not-a-mushroom
 model = ResNet50(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=2)
-"""
+
 for layer in model.layers:
    layer.trainable = True
 
@@ -40,10 +40,10 @@ validation_generator = test_datagen.flow_from_directory(
         target_size=(224, 224),
         batch_size=32,
         class_mode='binary')
-"""
+
 from keras.optimizers import SGD
 model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy')
-"""
+
 model.fit_generator(
         train_generator,
         steps_per_epoch=2000,
@@ -51,7 +51,7 @@ model.fit_generator(
         validation_data=validation_generator,
         validation_steps=800,
         verbose=2)
-"""
+
 export_dir = 'export'
 keras_file = 'keras_model_and_weights.h5'
 tflite_file = os.path.join(export_dir, 'tflite_model_and_weigths.tflite')
