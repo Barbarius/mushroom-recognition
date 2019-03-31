@@ -67,7 +67,7 @@ def save_model_to_pb(model, dir_path, file_name, output_node_name):
     tf.identity(model.output, name=output_node_name)
     session = K.get_session()
     constant_graph = graph_util.convert_variables_to_constants(session, session.graph.as_graph_def(), [output_node_name])
-    graph_io.write_graph(constant_graph, dir_path, file_name, as_text=True)
+    graph_io.write_graph(constant_graph, dir_path, file_name, as_text=False)
     return
 
 model = create_trainable_resnet50(4)
