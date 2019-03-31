@@ -20,7 +20,7 @@ validate_dir = sys.argv[2]
 
 # ResNet model for classifications mushrooms into 4 categories:
 # edible, non-edible, partial-edible, not-a-mushroom
-model = ResNet50(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=2)
+model = ResNet50(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=4)
 
 for layer in model.layers:
    layer.trainable = True
