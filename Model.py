@@ -6,6 +6,10 @@ import numpy as np
 import sys
 import os
 
+# Arguments:
+# 1 - programm name
+# 2 - directory with train fotos
+# 3 - directory with test fotos
 if len(sys.argv) < 3:
     print("You should specify directory to train on as first argument and "
         "directory to validate on as second one")
@@ -14,8 +18,8 @@ if len(sys.argv) < 3:
 train_dir = sys.argv[1]
 validate_dir = sys.argv[2]
 
-# ResNet model for classifications mushrooms into 3 categories:
-# Edible, non-edible, not-a-mushroom
+# ResNet model for classifications mushrooms into 4 categories:
+# edible, non-edible, partial-edible, not-a-mushroom
 model = ResNet50(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=2)
 
 for layer in model.layers:
@@ -60,4 +64,3 @@ model.save(keras_file)
 converter = tf.lite.TFLiteConverter.from_keras_model_file(keras_file)
 tflite_model = converter.convert()
 open(tflite_file, "wb").write(tflite_model)
-
