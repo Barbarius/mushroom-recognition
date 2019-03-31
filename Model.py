@@ -1,14 +1,11 @@
 from keras.applications.resnet50 import ResNet50
 from keras.preprocessing import image
-from keras.applications.resnet50 import preprocess_input, decode_predictions
 from keras.optimizers import SGD
 from keras import backend as K
 from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import graph_io
 import tensorflow as tf
-import numpy as np
 import sys
-import os
 
 # Arguments:
 # 1 - programm name
