@@ -1,0 +1,4 @@
+edible
+non-edible
+not-a-mushroom
+partial-edible

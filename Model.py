@@ -6,6 +6,7 @@ from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import graph_io
 import tensorflow as tf
 import sys
+import os
 
 # Arguments:
 # 1 - programm name
@@ -29,7 +30,25 @@ def compile_model(model):
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy')
     return
 
-def train_model(model, train_dir, validation_dir, epochs):
+def train_model(model, train_generator, validation_generator, epochs):
+    model.fit_generator(
+            train_generator,
+            steps_per_epoch=2000,
+            epochs=epochs,
+            validation_data=validation_generator,
+            validation_steps=800,
+            verbose=2)
+    return
+
+def save_model_to_pb(model, dir_path, file_name, output_node_name):
+    K.set_learning_phase(0)
+    tf.identity(model.output, name=output_node_name)
+    session = K.get_session()
+    constant_graph = graph_util.convert_variables_to_constants(session, session.graph.as_graph_def(), [output_node_name])
+    graph_io.write_graph(constant_graph, dir_path, file_name, as_text=False)
+    return
+
+def get_data_generators(train_dir, validation_dir):
     train_datagen = image.ImageDataGenerator(
             rescale=1./255,
             shear_range=0.2,
@@ -50,24 +69,18 @@ def train_model(model, train_dir, validation_dir, epochs):
             batch_size=32,
             class_mode='binary')
     
-    model.fit_generator(
-            train_generator,
-            steps_per_epoch=2000,
-            epochs=epochs,
-            validation_data=validation_generator,
-            validation_steps=800,
-            verbose=2)
-    return
+    return train_generator, validation_generator
 
-def save_model_to_pb(model, dir_path, file_name, output_node_name):
-    K.set_learning_phase(0)
-    tf.identity(model.output, name=output_node_name)
-    session = K.get_session()
-    constant_graph = graph_util.convert_variables_to_constants(session, session.graph.as_graph_def(), [output_node_name])
-    graph_io.write_graph(constant_graph, dir_path, file_name, as_text=False)
+def save_class_labels(label_map, dir_path, file_name):
+    sorted_labels = sorted(label_map, key=label_map.__getitem__)
+    with open(os.path.join(dir_path, file_name), 'w') as label_file:
+        for label in sorted_labels:
+            label_file.write("%s\n" % label)
     return
 
 model = create_trainable_resnet50(4)
 compile_model(model)
-train_model(model, train_dir, validate_dir, 50)
+train_generator, validation_generator = get_data_generators(train_dir, validate_dir)
+train_model(model, train_generator, validation_generator, 50)
 save_model_to_pb(model, 'export', 'model_with_weights.pb', 'output')
+save_class_labels(train_generator.class_indices, 'export', 'labels.txt')
