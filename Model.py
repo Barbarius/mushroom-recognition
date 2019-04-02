@@ -77,11 +77,17 @@ def save_class_labels(label_map, dir_path, file_name):
         for label in sorted_labels:
             label_file.write("%s\n" % label)
     return
+    
+def save_model_to_h5(model, dir_path, file_name):
+    model.save(os.path.join(dir_path, file_name))
+    return
 
 model = create_trainable_resnet50(4)
 compile_model(model)
 train_generator, validation_generator = get_data_generators(train_dir, validate_dir)
 train_model(model, train_generator, validation_generator, 50)
 compile_model(model)
+
+save_model_to_h5(model, '.', 'model_with_weights.h5')
 save_model_to_pb(model, 'export', 'model_with_weights.pb', 'output')
 save_class_labels(train_generator.class_indices, 'export', 'labels.txt')
