@@ -82,12 +82,22 @@ def save_model_to_h5(model, dir_path, file_name):
     model.save(os.path.join(dir_path, file_name))
     return
 
-model = create_trainable_resnet50(4)
+def load_trained_model(path):
+	return load_model(path)
+
+h5_model_save_dir = '.'
+h5_model_filename = 'model_with_weights.h5'
+h5_model_path = os.path.join(h5_model_save_dir, h5_model_filename)
+if (os.path.isfile(h5_model_path)):
+	model = load_trained_model(h5_model_path)
+else:
+	model = create_trainable_resnet50(4)
+
 compile_model(model)
 train_generator, validation_generator = get_data_generators(train_dir, validate_dir)
 train_model(model, train_generator, validation_generator, 50)
 compile_model(model)
 
-save_model_to_h5(model, '.', 'model_with_weights.h5')
+save_model_to_h5(model, h5_model_save_dir, h5_model_filename)
 save_model_to_pb(model, 'export', 'model_with_weights.pb', 'output')
 save_class_labels(train_generator.class_indices, 'export', 'labels.txt')
