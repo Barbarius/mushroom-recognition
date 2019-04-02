@@ -2,6 +2,7 @@ from keras.applications.resnet50 import ResNet50
 from keras.preprocessing import image
 from keras.optimizers import SGD
 from keras import backend as K
+from keras.models import load_model
 from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import graph_io
 import tensorflow as tf
