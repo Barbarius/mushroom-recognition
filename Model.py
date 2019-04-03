@@ -118,7 +118,7 @@ def save_model_to_h5(model, dir_path, file_name):
 model = create_trainable_resnet50(4)
 compile_model(model)
 train_generator, validation_generator = get_data_generators(train_dir, validate_dir)
-train_model(model, train_generator, validation_generator, 2)
+train_model(model, train_generator, validation_generator, 10)
 compile_model(model)
 
 print(train_generator.class_indices)
