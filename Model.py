@@ -2,10 +2,15 @@ from keras.applications.resnet50 import ResNet50
 from keras.preprocessing import image
 from keras.optimizers import SGD
 from keras import backend as K
-from keras.models import load_model
 from tensorflow.python.framework import graph_util
 from tensorflow.python.framework import graph_io
+from keras.applications.resnet50 import preprocess_input, decode_predictions
+from keras.models import load_model
+from keras.models import Model
+from keras.layers import Flatten
+from keras.layers import Dense
 import tensorflow as tf
+import numpy as np
 import sys
 import os
 
@@ -21,14 +26,41 @@ if len(sys.argv) < 3:
 train_dir = sys.argv[1]
 validate_dir = sys.argv[2]
 
+'''
 def create_trainable_resnet50(classes_count):
     model = ResNet50(include_top=True, weights=None, input_tensor=None, input_shape=None, pooling=None, classes=classes_count)
     for layer in model.layers:
         layer.trainable = True
     return model
+'''
 
+'''
+def create_trainable_resnet50(classes_count):
+	model = ResNet50(include_top=False, weights=None, input_shape=(224, 224, 3))
+
+	x = Flatten()(model.output)
+	predictions = Dense(classes_count, activation='softmax', name='fc1000')(x)
+	
+	model = Model(input=model.input, output=predictions)
+	for layer in model.layers:
+		layer.trainable = True
+	return model
+'''
+
+def create_trainable_resnet50(classes_count):
+	model = ResNet50(include_top=False, weights='imagenet', input_shape=(224, 224, 3))
+
+	for layer in model.layers:
+		layer.trainable = False
+
+	x = Flatten()(model.output)
+	predictions = Dense(classes_count, activation='softmax', name='fc1000')(x)
+	
+	return Model(input=model.input, output=predictions)
+    
 def compile_model(model):
     model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='sparse_categorical_crossentropy')
+    #model.compile(optimizer=SGD(lr=0.0001, momentum=0.9), loss='categorical_crossentropy')
     return
 
 def train_model(model, train_generator, validation_generator, epochs):
@@ -78,27 +110,19 @@ def save_class_labels(label_map, dir_path, file_name):
         for label in sorted_labels:
             label_file.write("%s\n" % label)
     return
-    
+
 def save_model_to_h5(model, dir_path, file_name):
     model.save(os.path.join(dir_path, file_name))
     return
 
-def load_trained_model(path):
-	return load_model(path)
-
-h5_model_save_dir = '.'
-h5_model_filename = 'model_with_weights.h5'
-h5_model_path = os.path.join(h5_model_save_dir, h5_model_filename)
-if (os.path.isfile(h5_model_path)):
-	model = load_trained_model(h5_model_path)
-else:
-	model = create_trainable_resnet50(4)
-
+model = create_trainable_resnet50(4)
 compile_model(model)
 train_generator, validation_generator = get_data_generators(train_dir, validate_dir)
-train_model(model, train_generator, validation_generator, 50)
+train_model(model, train_generator, validation_generator, 2)
 compile_model(model)
 
-save_model_to_h5(model, h5_model_save_dir, h5_model_filename)
+print(train_generator.class_indices)
+
+save_model_to_h5(model, '.', 'model_with_weights.h5')
 save_model_to_pb(model, 'export', 'model_with_weights.pb', 'output')
 save_class_labels(train_generator.class_indices, 'export', 'labels.txt')
