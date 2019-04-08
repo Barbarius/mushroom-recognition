@@ -1,0 +1,3 @@
+[submodule "mushroom-images"]
+	path = mushroom-images
+	url = https://github.com/Barbarius/mushroom-images
