@@ -1,8 +1,9 @@
-#Retrain ResNet50 neural network model based on imagenet wheights
+#Retrain MobileNetV2 neural network model based on imagenet wheights
 
-#python3 Model.py 4 20 "../mushroom-images/Mushrooms_with_classes/" "../mushroom-images/Mushrooms_with_classes/"
+#python3 Model.py 4 50 "../mushroom-images/Mushrooms_with_classes/" "../mushroom-images/Mushrooms_with_classes/"
 
-from keras.applications.resnet50 import ResNet50
+#from keras.applications.resnet50 import ResNet50
+from keras.applications.mobilenet_v2 import MobileNetV2
 from keras.preprocessing import image
 from keras.optimizers import SGD
 from keras import backend as K
@@ -39,6 +40,19 @@ validate_dir = sys.argv[4]
 
 def create_trainable_resnet50(classes_count):
 	model = ResNet50(include_top=False, weights='imagenet', input_shape=(224, 224, 3))
+
+    #do not retrain hole model
+	for layer in model.layers:
+		layer.trainable = False
+
+    #create new output layer and train it
+	x = Flatten()(model.output)
+	predictions = Dense(classes_count, activation='softmax', name='fc1000')(x)
+	
+	return Model(input=model.input, output=predictions)
+	
+def create_trainable_MobileNetV2(classes_count):
+	model = MobileNetV2(alpha=1.0, include_top=False, weights='imagenet', input_shape=(224, 224, 3))
 
     #do not retrain hole model
 	for layer in model.layers:
@@ -108,7 +122,8 @@ def save_model_to_h5(model, dir_path, file_name):
     model.save(os.path.join(dir_path, file_name))
     return
 
-model = create_trainable_resnet50(number_of_classes)
+#model = create_trainable_resnet50(number_of_classes)
+model = create_trainable_MobileNetV2(number_of_classes)
 compile_model(model)
 train_generator, validation_generator = get_data_generators(train_dir, validate_dir)
 history = train_model(model, train_generator, validation_generator, number_of_epochs)
