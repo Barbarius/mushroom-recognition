@@ -1,9 +1,9 @@
-#Retrain MobileNetV2 neural network model based on imagenet wheights
+#Retrain ResNet50 neural network model based on imagenet wheights
 
 #python3 Model.py 4 50 "../mushroom-images/Mushrooms_with_classes/" "../mushroom-images/Mushrooms_with_classes/"
 
-#from keras.applications.resnet50 import ResNet50
-from keras.applications.mobilenet_v2 import MobileNetV2
+from keras.applications.resnet50 import ResNet50
+#from keras.applications.mobilenet_v2 import MobileNetV2
 from keras.preprocessing import image
 from keras.optimizers import SGD
 from keras import backend as K
@@ -122,8 +122,8 @@ def save_model_to_h5(model, dir_path, file_name):
     model.save(os.path.join(dir_path, file_name))
     return
 
-#model = create_trainable_resnet50(number_of_classes)
-model = create_trainable_MobileNetV2(number_of_classes)
+model = create_trainable_resnet50(number_of_classes)
+#model = create_trainable_MobileNetV2(number_of_classes)
 compile_model(model)
 train_generator, validation_generator = get_data_generators(train_dir, validate_dir)
 history = train_model(model, train_generator, validation_generator, number_of_epochs)
